@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanMate | Student Life Planner</title>
+<style>
+:root{
+  --ink:#26382f;--muted:#718078;--green:#587b65;--green-dark:#3e624c;
+  --sage:#e8efe8;--cream:#f8f8f3;--white:#fff;--line:#e4e9e2;
+  --peach:#f4e6d9;--yellow:#f4efda;--shadow:0 10px 30px rgba(39,60,47,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:245px 1fr;min-height:100vh}
+.sidebar{background:#f0f4ee;border-right:1px solid var(--line);padding:28px 18px;display:flex;flex-direction:column;gap:30px}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px}
+.logo{width:38px;height:38px;border-radius:13px;background:var(--green);color:white;display:grid;place-items:center;font-weight:800}
+.brand strong{font-size:19px;letter-spacing:-.5px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.nav-label{font-size:10px;font-weight:800;letter-spacing:1.4px;color:#89958d;padding:0 12px;margin-bottom:8px}
+nav{display:grid;gap:5px}
+.nav-btn{border:0;background:transparent;color:#637269;text-align:left;padding:12px;border-radius:11px;display:flex;align-items:center;gap:12px;font-weight:600;font-size:13px}
+.nav-btn span{width:20px;text-align:center;font-size:16px}
+.nav-btn.active,.nav-btn:hover{background:white;color:var(--green-dark);box-shadow:0 3px 12px rgba(39,60,47,.04)}
+.sidebar-note{margin-top:auto;background:#e3ebe1;padding:17px;border-radius:16px;font-size:12px;line-height:1.6;color:#52665a}
+.sidebar-note b{display:block;font-size:13px;margin-bottom:5px;color:var(--ink)}
+main{padding:34px clamp(20px,4vw,58px);max-width:1500px;width:100%;margin:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}
+.eyebrow{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+h1{font-size:clamp(25px,3vw,34px);letter-spacing:-1.2px;margin:7px 0 5px}
+.subtitle{color:var(--muted);font-size:14px}
+.date-chip{background:white;border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:#65746a;font-size:12px;font-weight:650}
+.page{display:none}.page.active{display:block}
+.hero{background:var(--sage);border-radius:20px;padding:25px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;overflow:hidden}
+.hero h2{font-size:22px;margin:5px 0 7px;letter-spacing:-.5px}.hero p{color:#607266;font-size:13px;margin:0;max-width:470px;line-height:1.6}
+.hero-mark{font-size:54px;opacity:.85;padding:0 18px}
+.btn{border:0;border-radius:10px;background:var(--green);color:white;padding:10px 15px;font-size:12px;font-weight:750}
+.btn:hover{background:var(--green-dark)}.btn.secondary{background:white;color:var(--green-dark);border:1px solid var(--line)}.btn.small{padding:7px 10px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat,.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:19px;box-shadow:var(--shadow)}
+.stat-top{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:650}
+.stat-icon{width:30px;height:30px;border-radius:10px;background:#eef3ed;display:grid;place-items:center}
+.stat strong{display:block;font-size:27px;margin:10px 0 3px;letter-spacing:-1px}
+.stat small{color:var(--muted);font-size:11px}
+.content-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:17px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
+.panel h3{font-size:15px;margin:0;letter-spacing:-.2px}.muted{color:var(--muted);font-size:11px}
+.task-list{display:grid;gap:9px}
+.task{display:flex;align-items:center;gap:10px;padding:11px;background:#fbfcfa;border:1px solid #edf0eb;border-radius:11px}
+.task input[type=checkbox]{accent-color:var(--green);width:16px;height:16px}
+.task-info{min-width:0;flex:1}.task-info b{font-size:12px;display:block;overflow-wrap:anywhere}.task-info small{color:var(--muted);font-size:10px}
+.task.done .task-info b{text-decoration:line-through;color:#9aa59d}
+.tag{font-size:9px;font-weight:750;padding:5px 7px;border-radius:7px;background:#edf3ec;color:#54745e;white-space:nowrap}
+.tag.urgent{background:#f8e9e1;color:#a76548}.empty{padding:24px;text-align:center;color:var(--muted);font-size:12px}
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.day{border:1px solid var(--line);border-radius:11px;text-align:center;padding:10px 3px;background:#fbfcfa}
+.day small{display:block;color:var(--muted);font-size:9px}.day b{display:block;font-size:13px;margin:5px 0}.day.today{background:var(--green);color:white;border-color:var(--green)}.day.today small{color:#e4eee5}
+.progress{height:7px;border-radius:20px;background:#edf1ec;overflow:hidden;margin:12px 0 5px}.progress span{display:block;height:100%;background:var(--green);border-radius:20px;width:0;transition:width .25s}
+.form-row{display:flex;gap:8px;flex-wrap:wrap}.field{border:1px solid var(--line);border-radius:10px;background:white;padding:10px 11px;font-size:12px;color:var(--ink);min-width:0}
+.field:focus,textarea:focus{outline:2px solid #c9d9cb;border-color:var(--green)}
+.form-row .field:first-child{flex:1;min-width:150px}
+.section-intro{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.week-table{width:100%;border-collapse:collapse;font-size:12px}.week-table th,.week-table td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left}.week-table th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px}
+.timer-wrap{text-align:center;padding:28px 15px}.timer{font-size:66px;font-weight:750;letter-spacing:-3px;margin:10px 0;color:var(--green-dark);font-variant-numeric:tabular-nums}
+.timer-controls{display:flex;justify-content:center;gap:8px;margin:17px 0}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:12px;font-size:12px;line-height:1.6}
+.notice{font-size:11px;color:var(--muted);line-height:1.6;margin-top:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:#26382f;color:white;padding:12px 16px;border-radius:11px;font-size:12px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translateY(0)}
+.mobile-brand{display:none}
+@media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{padding:12px 15px;position:sticky;top:0;z-index:5;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{padding:0 4px}.sidebar .nav-label,.sidebar-note{display:none}nav{display:flex;overflow-x:auto;gap:4px}.nav-btn{white-space:nowrap;padding:9px 11px;font-size:11px}.nav-btn span{width:auto}.content-grid,.two-col{grid-template-columns:1fr}main{padding:24px 17px}.hero{padding:20px}.hero-mark{font-size:40px;padding:0}.date-chip{display:none}}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:span 2}.stat{padding:14px}.stat strong{font-size:23px}.hero{align-items:flex-start}.hero-mark{display:none}.week-strip{gap:4px}.day{padding:9px 1px}.day small{font-size:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">P</div><div><strong>PlanMate</strong><small>your student life planner</small></div></div>
+  <div><div class="nav-label">WORKSPACE</div>
+    <nav>
+      <button class="nav-btn active" data-page="dashboard"><span>⌂</span>Dashboard</button>
+      <button class="nav-btn" data-page="tasks"><span>✓</span>My Tasks</button>
+      <button class="nav-btn" data-page="week"><span>▦</span>Weekly Planner</button>
+      <button class="nav-btn" data-page="focus"><span>◷</span>Focus Sprint</button>
+      <button class="nav-btn" data-page="reflect"><span>✎</span>Reset & Reflect</button>
+    </nav>
+  </div>
+  <div class="sidebar-note"><b>A gentle reminder 🌱</b>You don't have to finish everything at once. Start with one small step and keep going.</div>
+</aside>
+<main>
+  <header class="topbar"><div><div class="eyebrow">STUDENT WORKSPACE</div><h1 id="pageTitle">Good day! Ready to make progress?</h1><div class="subtitle" id="pageSubtitle">A little planning can make a big difference.</div></div><div class="date-chip" id="todayDate"></div></header>
+
+  <section class="page active" id="dashboard">
+    <div class="hero"><div><div class="eyebrow">YOUR SPACE, YOUR PACE</div><h2>Make your week count.</h2><p>Keep your tasks clear, your priorities realistic, and your progress visible. You've got this.</p><button class="btn" style="margin-top:16px" onclick="showPage('tasks')">Plan my tasks&nbsp; →</button></div><div class="hero-mark">🌿</div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-top">Tasks to do <span class="stat-icon">☑</span></div><strong id="remainingCount">0</strong><small>Keep taking it one task at a time</small></div>
+      <div class="stat"><div class="stat-top">Completed <span class="stat-icon">✓</span></div><strong id="completedCount">0</strong><small>Every completed task counts</small></div>
+      <div class="stat"><div class="stat-top">Weekly progress <span class="stat-icon">↗</span></div><strong id="progressText">0%</strong><div class="progress"><span id="progressBar"></span></div></div>
+    </div>
+    <div class="content-grid">
+      <div class="panel"><div class="panel-head"><h3>Today's priorities</h3><button class="btn secondary small" onclick="showPage('tasks')">View all</button></div><div id="todayTasks" class="task-list"></div></div>
+      <div class="panel"><div class="panel-head"><h3>This week</h3><span class="muted">Your overview</span></div><div class="week-strip" id="weekStrip"></div><p class="notice">Use your weekly planner to organize classes, study time, and important deadlines.</p></div>
+    </div>
+  </section>
+
+  <section class="page" id="tasks">
+    <p class="section-intro">Write down what needs to get done, set a deadline, and break big requirements into smaller steps. You can check off each task as you finish.</p>
+    <div class="panel" style="margin-bottom:16px"><div class="panel-head"><h3>Add a task</h3><span class="muted">Big task, small steps</span></div>
+      <form class="form-row" id="taskForm"><input class="field" id="taskName" placeholder="e.g. Finish research paper" required maxlength="90"><input class="field" id="taskDate" type="date" aria-label="Due date"><select class="field" id="taskPriority"><option value="Normal">Normal</option><option value="Urgent">Urgent</option></select><button class="btn">Add task +</button></form>
+    </div>
+    <div class="panel"><div class="panel-head"><h3>My task list</h3><span class="muted" id="taskTotal">0 tasks</span></div><div id="allTasks" class="task-list"></div></div>
+  </section>
+
+  <section class="page" id="week">
+    <p class="section-intro">Give your week a simple structure. Add classes, study sessions, activities, or deadlines. Keep the plan flexible and realistic.</p>
+    <div class="panel"><div class="panel-head"><h3>Weekly Command Center</h3><span class="muted">Monday – Sunday</span></div>
+      <form id="scheduleForm" class="form-row" style="margin-bottom:16px"><select class="field" id="scheduleDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><input class="field" id="scheduleTime" placeholder="Time (e.g. 9:00 AM)" required maxlength="25"><input class="field" id="scheduleActivity" placeholder="Class or activity" required maxlength="70"><button class="btn">Add</button></form>
+      <div id="scheduleList"></div>
+    </div>
+  </section>
+
+  <section class="page" id="focus">
+    <p class="section-intro">Try a short focus sprint. Work on one task, take a break, and return when you're ready. You can change the session length anytime.</p>
+    <div class="two-col">
+      <div class="panel timer-wrap"><div class="eyebrow">FOCUS SPRINT</div><h3 style="margin-top:8px">One thing at a time.</h3><div class="timer" id="timerDisplay">25:00</div><div class="muted" id="timerStatus">Ready when you are</div><div class="timer-controls"><button class="btn" id="timerStart">Start</button><button class="btn secondary" id="timerReset">Reset</button></div><div class="form-row" style="justify-content:center"><label class="muted" for="focusLength">Session length</label><select class="field" id="focusLength"><option value="15">15 minutes</option><option value="25" selected>25 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option></select></div></div>
+      <div class="panel"><h3>Focus reminders</h3><div style="display:grid;gap:13px;margin-top:18px;font-size:12px;line-height:1.6"><div>🎯 <b>Choose one task.</b><br><span class="muted">Know what you want to finish before starting.</span></div><div>📵 <b>Reduce distractions.</b><br><span class="muted">Put away anything that interrupts your attention.</span></div><div>☕ <b>Take a real break.</b><br><span class="muted">Stretch, drink water, and rest your eyes.</span></div><div>🌱 <b>Be kind to yourself.</b><br><span class="muted">Progress matters more than a perfect session.</span></div></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="reflect">
+    <p class="section-intro">Plans can change, and that's okay. Use this space to review your week, move unfinished tasks, and think about what helped you make progress.</p>
+    <div class="two-col">
+      <div class="panel"><h3>Reset without guilt</h3><p class="muted" style="line-height:1.6">Look at unfinished tasks. Decide what still matters, what can be moved, and what can be simplified.</p><div id="unfinishedTasks" class="task-list" style="margin-top:15px"></div></div>
+      <div class="panel"><h3>End-of-week reflection</h3><p class="muted" style="line-height:1.6">A few honest notes can help you plan your next week better.</p><textarea id="reflection" placeholder="What went well this week?&#10;What was challenging?&#10;What is one thing I want to improve next week?"></textarea><button class="btn" id="saveReflection" style="margin-top:10px">Save reflection</button><div class="notice" id="savedNote">Your reflection stays saved in this browser.</div></div>
+    </div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const store={
+ get(k,f){try{return JSON.parse(localStorage.getItem('planmate_'+k))??f}catch{return f}},
+ set(k,v){localStorage.setItem('planmate_'+k,JSON.stringify(v))}
+};
+let tasks=store.get('tasks',[]), schedule=store.get('schedule',[]), reflection=store.get('reflection','');
+let timerSeconds=25*60,timerInterval=null,running=false;
+const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const pageInfo={
+ dashboard:['Good day! Ready to make progress?','A little planning can make a big difference.'],
+ tasks:['Your tasks, made manageable.','Small steps add up to meaningful progress.'],
+ week:['Make room for what matters.','Build a weekly plan that works for you.'],
+ focus:['Give your attention a little space.','A focused few minutes can move you forward.'],
+ reflect:['Pause, reset, and keep growing.','Your progress does not have to be perfect.']
+};
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('#pageTitle').textContent=pageInfo[id][0];$('#pageSubtitle').textContent=pageInfo[id][1];if(id==='reflect')renderReflection();if(id==='week')renderSchedule();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+$('#todayDate').textContent=new Intl.DateTimeFormat('en',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).format(new Date());
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function saveTasks(){store.set('tasks',tasks);renderTasks()}
+function taskMarkup(t){return `<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Mark ${escapeHTML(t.name)} complete" onchange="toggleTask('${t.id}')"><div class="task-info"><b>${escapeHTML(t.name)}</b><small>${t.date?'Due '+new Date(t.date+'T00:00:00').toLocaleDateString('en',{month:'short',day:'numeric'}):'No deadline set'}</small></div><span class="tag ${t.priority==='Urgent'?'urgent':''}">${t.priority}</span><button class="btn secondary small" aria-label="Delete task" onclick="deleteTask('${t.id}')">×</button></div>`}
+function renderTasks(){
+ const open=tasks.filter(t=>!t.done),done=tasks.filter(t=>t.done);
+ $('#allTasks').innerHTML=tasks.length?tasks.map(taskMarkup).join(''):'<div class="empty">No tasks yet. Add your first task above 🌱</div>';
+ $('#todayTasks').innerHTML=open.slice(0,4).map(taskMarkup).join('')||'<div class="empty">Nothing waiting here. Enjoy the breathing room!</div>';
+ $('#unfinishedTasks').innerHTML=open.map(t=>`<div class="task"><div class="task-info"><b>${escapeHTML(t.name)}</b><small>${t.date?'Due '+t.date:'No deadline'}</small></div><button class="btn secondary small" onclick="moveTask('${t.id}')">Move to next week</button></div>`).join('')||'<div class="empty">All caught up. Nice work!</div>';
+ $('#remainingCount').textContent=open.length;$('#completedCount').textContent=done.length;$('#taskTotal').textContent=tasks.length+' task'+(tasks.length===1?'':'s');
+ const pct=tasks.length?Math.round(done.length/tasks.length*100):0;$('#progressText').textContent=pct+'%';$('#progressBar').style.width=pct+'%';
+}
+function toggleTask(id){tasks=tasks.map(t=>t.id===id?{...t,done:!t.done}:t);saveTasks()}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);saveTasks();toast('Task deleted')}
+function moveTask(id){tasks=tasks.map(t=>t.id===id?{...t,date:''}:t);saveTasks();toast('Task moved. Choose a new deadline when ready.')}
+$('#taskForm').addEventListener('submit',e=>{e.preventDefault();const name=$('#taskName').value.trim();if(!name)return;tasks.unshift({id:Date.now().toString(),name,date:$('#taskDate').value,priority:$('#taskPriority').value,done:false});saveTasks();e.target.reset();toast('Task added to your list')});
+function renderWeek(){const today=new Date();const mondayOffset=(today.getDay()+6)%7;const monday=new Date(today);monday.setDate(today.getDate()-mondayOffset);$('#weekStrip').innerHTML=Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return `<div class="day ${d.toDateString()===today.toDateString()?'today':''}"><small>${dayNames[d.getDay()].slice(0,3)}</small><b>${d.getDate()}</b></div>`}).join('')}
+function renderSchedule(){const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];$('#scheduleList').innerHTML=days.map(day=>{const items=schedule.filter(s=>s.day===day);return `<div style="padding:12px 0;border-bottom:1px solid var(--line)"><b style="font-size:12px">${day}</b>${items.length?items.map(s=>`<div class="task" style="margin-top:7px"><span class="tag">${escapeHTML(s.time)}</span><div class="task-info"><b>${escapeHTML(s.activity)}</b></div><button class="btn secondary small" onclick="deleteSchedule('${s.id}')">×</button></div>`).join(''):'<div class="muted" style="margin-top:6px">No activities added</div>'}</div>`}).join('')}
+$('#scheduleForm').addEventListener('submit',e=>{e.preventDefault();schedule.push({id:Date.now().toString(),day:$('#scheduleDay').value,time:$('#scheduleTime').value.trim(),activity:$('#scheduleActivity').value.trim()});store.set('schedule',schedule);e.target.reset();renderSchedule();toast('Added to your weekly plan')});
+function deleteSchedule(id){schedule=schedule.filter(s=>s.id!==id);store.set('schedule',schedule);renderSchedule()}
+function renderReflection(){$('#reflection').value=reflection;const open=tasks.filter(t=>!t.done);$('#unfinishedTasks').innerHTML=open.map(t=>`<div class="task"><div class="task-info"><b>${escapeHTML(t.name)}</b><small>${t.date?'Due '+t.date:'No deadline'}</small></div><button class="btn secondary small" onclick="moveTask('${t.id}')">Move</button></div>`).join('')||'<div class="empty">All caught up. Nice work!</div>'}
+$('#saveReflection').addEventListener('click',()=>{reflection=$('#reflection').value;store.set('reflection',reflection);$('#savedNote').textContent='Saved just now ✓';toast('Reflection saved')});
+function updateTimer(){const m=Math.floor(timerSeconds/60),s=timerSeconds%60;$('#timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function resetTimer(){clearInterval(timerInterval);running=false;timerSeconds=Number($('#focusLength').value)*60;updateTimer();$('#timerStart').textContent='Start';$('#timerStatus').textContent='Ready when you are'}
+$('#focusLength').addEventListener('change',resetTimer);$('#timerReset').addEventListener('click',resetTimer);
+$('#timerStart').addEventListener('click',()=>{if(running){clearInterval(timerInterval);running=false;$('#timerStart').textContent='Resume';$('#timerStatus').textContent='Paused';return}running=true;$('#timerStart').textContent='Pause';$('#timerStatus').textContent='You are doing great. Stay with it.';timerInterval=setInterval(()=>{timerSeconds--;updateTimer();if(timerSeconds<=0){clearInterval(timerInterval);running=false;$('#timerStart').textContent='Start again';$('#timerStatus').textContent='Sprint complete! Take a short break. 🌿';toast('Focus sprint complete! Take a break.');timerSeconds=Number($('#focusLength').value)*60;updateTimer()}},1000)});
+renderTasks();renderWeek();renderSchedule();renderReflection();updateTimer();
+</script>
+</body>
+</html>
