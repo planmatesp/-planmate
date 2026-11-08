@@ -1,2 +1,2 @@
 # -planmate
-PlanMate: The Student Life Planner
+PlanMate: Your Academic Companion
